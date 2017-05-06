@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic Tac Toe</title>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            min-height: 100%;
+        }
+        .container {
+            width: 100%px;
+            height: 100%px;
+        }
+        .square {
+            width: 33.333%;
+            height:33.333%;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            /*border: 1px solid #333;*/
+            display: -webkit-flex;
+            display: flex;
+            align-items: center;
+            -webkit-align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 4vw;
+            float: left;
+        }
+        .vertical {
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+        }
+        .horizontal {
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+        .tictactoe {
+            width: 300px;
+            height: 300px;
+            float: left;
+        }
+        .message {
+            float: left;
+            margin-left: 20px;
+        }
+        ul#message li {
+            font-size: 1.5vw;
+        }
+        .winner {
+            color: red;
+        }
+    </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="tictactoe">
+        <div class="square" id="0"></div>
+        <div class="square vertical" id="1"></div>
+        <div class="square" id="2"></div>
+        <div class="square horizontal" id="3"></div>
+        <div class="square vertical horizontal" id="4"></div>
+        <div class="square horizontal" id="5"></div>
+        <div class="square" id="6"></div>
+        <div class="square vertical" id="7"></div>
+        <div class="square" id="8"></div>
+    </div>
+    <div class="message">
+        <ul id="message"></ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        TicTacToe.sendMessage("Game start! Click on any square.");
+        $('.square').on('click', function() {
+            TicTacToe.run(this);
+        });
+    });
+
+    var TicTacToe = new function(){
+        /**
+         * @type {string}
+         */
+        this.lastMarked = '';
+
+        /**
+         * @type {boolean}
+         */
+        this.isPlayer = true;
+
+        /**
+         * @type {boolean}
+         */
+        this.isFinish= false;
+
+        /**
+         * @type {Array}
+         */
+        this.square = {
+            'X': new Array(9),
+            'O': new Array(9)
+        };
+
+        /**
+         * @type {int}
+         */
+        this._count = 0;
+
+        /**
+         * @type {Array}
+         */
+        this.w = [
+            [1, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 1, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0, 1, 0, 0, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 1],
+            [0, 0, 1, 0, 1, 0, 1, 0, 0]
+        ];
+
+        /**
+         * @param e
+         */
+        this.run = function(e) {
+            if(this.isFinish)
+                return false;
+
+            this._count++;
+
+            var id = $(e).attr('id');
+            var mark = $(e).html();
+
+            if("" != mark)
+                return false;
+
+            this.lastMarked = this.isPlayer ? "X" : "O";
+
+            $(e).html(this.lastMarked);
+
+            this.isEnd(id);
+
+            if(!this.isFinish && this._count == 9){
+                TicTacToe.sendMessage("No winners!");
+                TicTacToe.sendMessage('<a href="">Restart Game</a>');
+                return false;
+            }
+
+            if(!this.isFinish) {
+                this.isPlayer = !this.isPlayer;
+                TicTacToe.sendMessage("Next player: " + (this.isPlayer ? "X" : "O"));
+            }
+        };
+
+        /**
+         *
+         * @param id
+         */
+        this.isEnd = function(id){
+            this.square[this.lastMarked][id] = 1;
+
+            for(var combo in this.w){
+                var x = '';
+
+                for(var i in this.w[combo]){
+                    if(x != combo){
+                        x = combo;
+                        this.r = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    }
+
+                    if((this.square[this.lastMarked][i] === 1) && (this.w[combo][i] === 1)){
+                        this.r[i] = 1;
+
+                        if(this.w[combo] + '' === this.r + ''){
+                            TicTacToe.sendMessage("Goooooool!!!")
+                            TicTacToe.sendMessage("Player Winner: " + (this.isPlayer ? "X" : "O"));
+                            TicTacToe.sendMessage('<a href="">Restart Game</a>');
+                            this.isFinish = true;
+                            this.paintWinner();
+                            return true;
+                        }
+                    }
+                }
+            }
+        };
+        this.sendMessage = function(text){
+            $("#message").append("<li>" + text + "</li>");
+        };
+        this.paintWinner = function(){
+            for(var i in this.r){
+                if(this.r[i] == 1)
+                    $("#" + i).addClass('winner');
+            }
+        };
+    };
+</script>
+</body>
+</html>
