@@ -53,7 +53,6 @@
             color: red;
         }
     </style>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -73,11 +72,14 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function(){
+    document.addEventListener("DOMContentLoaded", function(event) {
         TicTacToe.sendMessage("Game start! Click on any square.");
-        $('.square').on('click', function() {
-            TicTacToe.run(this);
-        });
+        var square = document.getElementsByClassName("square");
+        for(var i=0; i < square.length; i++){
+            square[i].onclick = function(){
+                TicTacToe.run(this);
+            }
+        }
     });
 
     var TicTacToe = new function(){
@@ -132,15 +134,15 @@
 
             this._count++;
 
-            var id = $(e).attr('id');
-            var mark = $(e).html();
+            var id = e.id;
+            var mark = e.textContent;
 
             if("" != mark)
                 return false;
 
             this.lastMarked = this.isPlayer ? "X" : "O";
 
-            $(e).html(this.lastMarked);
+            e.textContent = this.lastMarked;
 
             this.isEnd(id);
 
@@ -188,12 +190,12 @@
             }
         };
         this.sendMessage = function(text){
-            $("#message").append("<li>" + text + "</li>");
+            document.getElementById('message').innerHTML += "<li>" + text + "</li>";
         };
         this.paintWinner = function(){
             for(var i in this.r){
                 if(this.r[i] == 1)
-                    $("#" + i).addClass('winner');
+                    document.getElementById(i).classList.add("winner");
             }
         };
     };
